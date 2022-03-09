@@ -21,7 +21,7 @@ long Graph::getNumEdges() const{
     return num_edges;
 }
 
-unordered_map< long, vector<long> > Graph::getGraph() const{
+map< long, vector<long> > Graph::getGraph() const{
     return graph;
 }
 

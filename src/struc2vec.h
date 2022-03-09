@@ -5,11 +5,25 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <unordered_map>
+//#include <map>
 #include <algorithm>
+#include <utility>
+#include <cmath>
+#include <climits>
 #include "graph.h"
 //#include "distance_alg.h"
 #include "utils.h"
+using namespace std;
+
+struct hash_pair {
+    template <class T1, class T2>
+    size_t operator()(const pair<T1, T2>& p) const
+    {
+        auto hash1 = hash<T1>{}(p.first);
+        auto hash2 = hash<T2>{}(p.second);
+        return hash1 ^ hash2;
+    }
+};
 
 class struc2vec{
     public:
@@ -19,15 +33,18 @@ class struc2vec{
         void PreprocessNeighborsBFS();
         void PreprocessDegreeLists();
         void CreateVectors();
-        vector< vector< unordered_map<int, double> > > CalDistAllVertices();
-        vector< vector< unordered_map<int, double> > > CalDistVertices();
+        //vector< vector< map<int, double> > > CalDistAllVertices();
+        map< pair<long, long>, map<int, double> > CalDistAllVertices();
+        //vector< vector< map<int, double> > > CalDistVertices();
+        map< pair<long, long>, map<int, double> > CalDistVertices();
         void CreateDistNetwork();
         void PreprocessParamsRandomWalk();
         vector< vector<long> > SimulateWalks(int num_walks, int walk_length);
 
     private:
-        unordered_map< int, vector<double> > getDegreeLists(long root);
-        void ConsolideDist(vector< vector< unordered_map<int, double> > >& distances, int start_layer=1);
+        map< int, vector<double> > getDegreeLists(long root);
+        //void ConsolideDist(vector< vector< map<int, double> > >& distances, int start_layer=1);
+        void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);
         double DTW(vector<double>& s, vector<double>& t);
         vector< long > ExecuteRandomWalk(long vertex, int walk_length);
         long ChooseNeighbor(long vertex, int layer);
@@ -46,7 +63,7 @@ class struc2vec{
         bool is_directed;
         int layers;
 
-        unordered_map< int, unordered_map< string, vector<long> > > degrees;
+        map< int, map< string, vector<long> > > degrees;
 
         /*
            degree_list = {
@@ -55,8 +72,8 @@ class struc2vec{
                 }
             }
         */
-        unordered_map< long, unordered_map< int, vector<double> > > degree_list;
-        unordered_map< long, unordered_map< int, vector< vector<double> > > > d_list;
+        map< long, map< int, vector<double> > > degree_list;
+        map< long, map< int, vector< vector<double> > > > d_list;
 
         /*
            weights = {
@@ -65,14 +82,14 @@ class struc2vec{
                 }
             }
         */
-        unordered_map< long, unordered_map< int, vector<double> > > weights;
+        map< long, map< int, vector<double> > > weights;
 
         /*
            average_weight = {
                 layer: avg_weight
             }
         */
-        unordered_map< int, double > average_weight;
+        map< int, double > average_weight;
 
         /*
            amount_neighbors = {
@@ -81,14 +98,15 @@ class struc2vec{
                 }
             }
         */
-        unordered_map< int, unordered_map< long, long > > amount_neighbors;
+        map< int, map< long, long > > amount_neighbors;
 
-        unordered_map< int, unordered_map< long, vector<int> > > alias_method_j;
-        unordered_map< int, unordered_map< long, vector<double> > > alias_method_q;
+        map< int, map< long, vector<int> > > alias_method_j;
+        map< int, map< long, vector<double> > > alias_method_q;
     
-        unordered_map< int, unordered_map< long, vector<long> > > graphs;
-        vector< vector< unordered_map<int, double> > > weights_distances;
-        unordered_map< int, unordered_map< long, vector<double> > > weights_probs;
+        map< int, map< long, vector<long> > > graphs;
+        //vector< vector< map<int, double> > > weights_distances;
+        map< int, map< pair<long, long>, double> > weights_distances;
+        map< int, map< long, vector<double> > > weights_probs;
 };
 
 #endif

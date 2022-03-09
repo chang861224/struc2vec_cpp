@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include "graph.h"
 //#include "distance_alg.h"
 #include "struc2vec.h"
@@ -39,8 +39,8 @@ int main(){
     s.SimulateWalks(10, 80);
     cout << "SimulateWalks" << endl;
 /*
-    unordered_map< long, vector<long> > m = G.getGraph();
-    unordered_map< long, unordered_map< int, vector<double> > > degree_lists = getDegreeListsVertices(G, 3);
+    map< long, vector<long> > m = G.getGraph();
+    map< long, map< int, vector<double> > > degree_lists = getDegreeListsVertices(G, 3);
 
     for(auto& v: degree_lists){
         cout << v.first << endl;
