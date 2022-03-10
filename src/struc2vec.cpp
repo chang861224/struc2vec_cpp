@@ -10,10 +10,8 @@ struc2vec::~struc2vec(){
 
 void struc2vec::PreprocessNeighborsBFS(){
     for(auto& v: G.getGraph()){
-        //degree_list[v.first] = getDegreeLists(G, v.first, layers);
         degree_list[v.first] = getDegreeLists(v.first);
     }
-    cout << "degree list size=" << degree_list.size() << endl;
 }
 
 map< int, vector<double> > struc2vec::getDegreeLists(long root){
@@ -121,9 +119,7 @@ void struc2vec::CreateVectors(){
     }
 }
 
-//vector< vector< map<int, double> > > struc2vec::CalDistAllVertices(){
 map< pair<long, long>, map<int, double> > struc2vec::CalDistAllVertices(){
-    //vector< vector< map<int, double> > > distances(G.getNumNodes(), vector< map<int, double> >(G.getNumNodes()));
     map< pair<long, long>, map<int, double> > distances;
     map< long, vector<long> > g = G.getGraph();
     long cont = 0;
@@ -137,9 +133,8 @@ map< pair<long, long>, map<int, double> > struc2vec::CalDistAllVertices(){
             map< int, vector<double> >degrees_v2 = degree_list[v2];
             int max_layer = min(degrees_v1.size(), degrees_v2.size());
 
-            for(auto layer = 0 ; layer < max_layer ; layer++){
+            for(auto layer = 0 ; layer <= max_layer ; layer++){
                 double dist = DTW(degrees_v1[layer], degrees_v2[layer]);
-                //distances[v1][v2][layer] = dist;
                 distances[make_pair(v1, v2)][layer] = dist;
             }
         }
@@ -150,23 +145,20 @@ map< pair<long, long>, map<int, double> > struc2vec::CalDistAllVertices(){
     return distances;
 }
 
-//vector< vector< map<int, double> > > struc2vec::CalDistVertices(){
 map< pair<long, long>, map<int, double> > struc2vec::CalDistVertices(){
-    //vector< vector< map<int, double> > > distances(G.getNumNodes(), vector< map<int, double> >(G.getNumNodes()));
     map< pair<long, long>, map<int, double> > distances;
     map< long, vector<long> > g = G.getGraph();
 
-    for(auto iter = g.begin() ; iter != g.end() ; iter++){
-        auto v1 = iter->first;
-        map< int, vector<double> > degrees_v1 = degree_list[v1];
+    for(auto iter: g){
+        auto v1 = iter.first;
+        map< int, vector<double> > lists_v1 = degree_list[v1];
 
-        for(auto v2: iter->second){
-            map< int, vector<double> >degrees_v2 = degree_list[v2];
-            int max_layer = min(degrees_v1.size(), degrees_v2.size());
+        for(auto v2: iter.second){
+            map< int, vector<double> >lists_v2 = degree_list[v2];
+            int max_layer = min(lists_v1.size(), lists_v2.size());
 
-            for(auto layer = 0 ; layer < max_layer ; layer++){
-                double dist = DTW(degrees_v1[layer], degrees_v2[layer]);
-                //distances[v1][v2][layer] = dist;
+            for(auto layer = 0 ; layer <= max_layer ; layer++){
+                double dist = DTW(lists_v1[layer], lists_v2[layer]);
                 distances[make_pair(v1, v2)][layer] = dist;
             }
         }
@@ -177,27 +169,7 @@ map< pair<long, long>, map<int, double> > struc2vec::CalDistVertices(){
     return distances;
 }
 
-//void struc2vec::ConsolideDist(vector< vector< map<int, double> > >& distances, int start_layer){
 void struc2vec::ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer){
-    /*
-    for(int i = 0 ; i < distances.size() ; i++){
-        for(int j = 0 ; j < distances[i].size() ; j++){
-            if(!distances[i][j].empty()){
-                map<int, double>& layers = distances[i][j];
-                map<int, double> keys_layers(layers.begin(), layers.end());
-                start_layer = min(int(keys_layers.size()), start_layer);
-
-                for(int layer = 0 ; layer < start_layer ; layer++){
-                    keys_layers.erase(keys_layers.begin());
-                }
-
-                for(auto& layer: keys_layers){
-                    layers[layer.first] += layers[layer.first - 1];
-                }
-            }
-        }
-    }
-    */
     for(auto distance: distances){
         map<int, double>& layers = distance.second;
         map<int, double> keys_layers(layers.begin(), layers.end());
@@ -288,7 +260,6 @@ double struc2vec::DTW(vector<double>& s, vector<double>& t){
 }
 
 vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length){
-    cout << "ExecuteRandomWalk" << endl;
     int init_layer = 0;
     int layer = init_layer;
     vector<long> path;
@@ -296,55 +267,36 @@ vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length){
     path.push_back(vertex);
 
     while(path.size() < walk_length){
-        cout << layer << endl;
         double r = (double) rand() / RAND_MAX;
-        cout << r << endl;
 
         if(r < 0.3){
-            cout << "if" << " ";
             vertex = ChooseNeighbor(vertex, layer);
-            cout << "vertex=" << vertex << endl;
-            cout << "A" << " ";
             path.push_back(vertex);
-            cout << "A" << endl;
         }
         else{
-            cout << "else" << " ";
             r = (double) rand() / RAND_MAX;
             double limiar_moveup = ProbMoveup(amount_neighbors[layer][vertex]);
 
             if(r > limiar_moveup){
-                cout << "if" << " ";
                 if(layer > init_layer){
-                    cout << "if";
                     layer -= 1;
                 }
             }
             else{
-                cout << "else" << " ";
                 if((layer + 1 <= layers) && (graphs[layer + 1].count(vertex))){
-                    cout << "if";
                     layer += 1;
                 }
             }
-            cout << ", vertex=" << vertex << endl;
         }
-        cout << path.size() << endl;
     }
-    cout << "ExecuteRandomWalk" << endl;
 
     return path;
 }
 
 long struc2vec::ChooseNeighbor(long vertex, int layer){
-    cout << "ChooseNeighbor" << endl;
-    map< long, vector<long> > g = G.getGraph();
-    vector<long> v_list = g[vertex];
+    vector<long> v_list = graphs[layer][vertex];
 
-    cout << "ChooseNeighbor" << endl;
-    cout << "layer=" << layer << ", vertex=" << vertex << endl;
     long idx = AliasDraw(alias_method_j[layer][vertex], alias_method_q[layer][vertex]);
-    cout << "ChooseNeighbor" << endl;
     return v_list[idx];
 }
 
@@ -354,20 +306,13 @@ double struc2vec::ProbMoveup(long num_neighbors){
 }
 
 long struc2vec::AliasDraw(vector<int> J, vector<double> q){
-    cout << "AliasDraw" << endl;
     int K = J.size();
 
     int kk = int((double)rand() / RAND_MAX * K);
-    cout << "AliasDraw" << endl;
-    cout << "kk=" << kk << endl;
-    cout << "len(J)=" << J.size() << endl;
-    cout << "len(q)=" << q.size() << endl;
 
     if((double) rand() / RAND_MAX < q[kk]){
-        cout << "if" << endl;
         return kk;
     }
-    cout << "AliasDraw" << endl;
 
     return J[kk];
 }
@@ -379,21 +324,8 @@ void struc2vec::GenerateDistNetwork(){
 }
 
 void struc2vec::GenerateDistNetworkPart1(){
-    cout << "GenerateDistNetworkPart1" << endl;
-    //vector< vector< map<int, double> > > weights_distances_1(G.getNumNodes(), vector< map<int, double> >(G.getNumNodes()));
-    //map< int, map< pair<long, long>, double> > weights_distances;
-    //vector< vector< map<int, double> > > distances = CalDistVertices();
     map< pair<long, long>, map<int, double> > distances = CalDistVertices();
 
-    /*
-    for(auto i = 0 ; i < distances.size() ; i++){
-        for(auto j = 0 ; j < distances[i].size() ; j++){
-            for(int layer = 0 ; layer <= layers ; layer++){
-                weights_distances_1[i][j][layer] = distances[i][j][layer];
-            }
-        }
-    }
-    */
     for(auto distance: distances){
         long v1 = distance.first.first;
         long v2 = distance.first.second;
@@ -405,37 +337,16 @@ void struc2vec::GenerateDistNetworkPart1(){
             weights_distances[layer][make_pair(v1, v2)] = d;
         }
     }
-
-    //weights_distances = weights_distances_1;
 }
 
 void struc2vec::GenerateDistNetworkPart2(){
-    cout << "GenerateDistNetworkPart2" << endl;
-    //vector< vector< map<int, double> > > distances = CalDistVertices();
     map< pair<long, long>, map<int, double> > distances = CalDistVertices();
-    for(auto x: distances){
-        long v1 = x.first.first;
-        long v2 = x.first.second;
 
-        if(v1 == 28 || v2 == 28){
-            cout <<  "ABCD" << endl;
-            break;
-        }
-    }
-
-    //for(auto i = 0 ; i < distances.size() ; i++){
     for(auto distance: distances){
         long v1 = distance.first.first;
         long v2 = distance.first.second;
 
-        //for(auto j = 0 ; j < distances[i].size() ; j++){
         for(auto dist: distance.second){
-            /*
-            for(int layer = 0 ; layer <= layers ; layer++){
-                graphs[layer][i].push_back(j);
-                graphs[layer][j].push_back(i);
-            }
-            */
             int layer = dist.first;
             double d = dist.second;
 
@@ -443,16 +354,9 @@ void struc2vec::GenerateDistNetworkPart2(){
             graphs[layer][v2].push_back(v1);
         }
     }
-
-    for(int i = 0 ; i <= layers ; i++){
-        for(auto p: graphs[i]){
-            cout << "graphs[" << i << "][" << p.first << "].size()=" << graphs[i][p.first].size() << endl;
-        }
-    }
 }
 
 void struc2vec::GenerateDistNetworkPart3(){
-    cout << "GenerateDistNetworkPart3" << endl;
 
     for(int layer = 0 ; layer <= layers ; layer++){
         for(auto v: graphs[layer]){
@@ -462,7 +366,6 @@ void struc2vec::GenerateDistNetworkPart3(){
             double sum_w = 0.0;
 
             for(long v2: v.second){
-                //double w = exp(-weights_distances[v1][v2][layer]);
                 double w = weights_distances[layer].count(make_pair(v1, v2)) ? 
                     exp(-weights_distances[layer][make_pair(v1, v2)]) : -exp(weights_distances[layer][make_pair(v2, v1)]);
 
@@ -475,10 +378,7 @@ void struc2vec::GenerateDistNetworkPart3(){
             }
 
             weights_probs[layer][v1] = e_list;
-            cout << "len(e_list)=" << e_list.size() << endl;
             AliasSetup(e_list, alias_method_j[layer][v1], alias_method_q[layer][v1]);
-            cout << "alias_method_j[" << layer << "][" << v1 << "]=" << alias_method_j[layer][v1].size() << endl;
-            cout << "alias_method_q[" << layer << "][" << v1 << "]=" << alias_method_q[layer][v1].size() << endl;
         }
     }
 }
@@ -494,7 +394,6 @@ void struc2vec::GenerateDistNetworkPart6(){
 
 void struc2vec::AliasSetup(vector<double> probs, vector<int>& J, vector<double>& q){
     int K = probs.size();
-    cout << "len(probs)=" << probs.size() << endl;
     vector<double> q1(K, 0.0);
     vector<int> J1(K, 0);
 

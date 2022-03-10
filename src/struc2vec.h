@@ -5,7 +5,6 @@
 #include <vector>
 #include <set>
 #include <map>
-//#include <map>
 #include <algorithm>
 #include <utility>
 #include <cmath>
@@ -33,9 +32,7 @@ class struc2vec{
         void PreprocessNeighborsBFS();
         void PreprocessDegreeLists();
         void CreateVectors();
-        //vector< vector< map<int, double> > > CalDistAllVertices();
         map< pair<long, long>, map<int, double> > CalDistAllVertices();
-        //vector< vector< map<int, double> > > CalDistVertices();
         map< pair<long, long>, map<int, double> > CalDistVertices();
         void CreateDistNetwork();
         void PreprocessParamsRandomWalk();
@@ -43,7 +40,6 @@ class struc2vec{
 
     private:
         map< int, vector<double> > getDegreeLists(long root);
-        //void ConsolideDist(vector< vector< map<int, double> > >& distances, int start_layer=1);
         void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);
         double DTW(vector<double>& s, vector<double>& t);
         vector< long > ExecuteRandomWalk(long vertex, int walk_length);
@@ -104,7 +100,6 @@ class struc2vec{
         map< int, map< long, vector<double> > > alias_method_q;
     
         map< int, map< long, vector<long> > > graphs;
-        //vector< vector< map<int, double> > > weights_distances;
         map< int, map< pair<long, long>, double> > weights_distances;
         map< int, map< long, vector<double> > > weights_probs;
 };
