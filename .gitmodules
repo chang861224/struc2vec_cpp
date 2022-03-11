@@ -1,0 +1,3 @@
+[submodule "src/word2vec"]
+	path = src/word2vec
+	url = git@github.com:maxoodf/word2vec.git
