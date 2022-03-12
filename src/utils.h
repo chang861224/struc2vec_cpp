@@ -5,10 +5,11 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include "graph.h"
 using namespace std;
 
 bool cmp(const vector<double> a, const vector<double> b);
 double dist_func(double a, double b);
-void SaveRandomWalks(vector< vector<long> > walks);
+void SaveRandomWalks(vector< vector<long> > walks, Graph G);
 
 #endif
