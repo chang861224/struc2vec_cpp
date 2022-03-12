@@ -20,7 +20,7 @@ int main(){
     s.PreprocessParamsRandomWalk();
     vector< vector<long> > walks = s.SimulateWalks(10, 80);
     
-    SaveRandomWalks(walks);
+    SaveRandomWalks(walks, G);
 
     return 0;
 }
