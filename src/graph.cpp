@@ -13,6 +13,10 @@ long Graph::searchNodeId(string node){
     return node2id.count(node) ? node2id[node] : -1;
 }
 
+string Graph::searchNode(long id){
+    return id2node[id];
+}
+
 long Graph::getNumNodes() const{
     return num_nodes;
 }
@@ -27,6 +31,7 @@ map< long, vector<long> > Graph::getGraph() const{
 
 long Graph::Node2Id(string node){
     if(!node2id.count(node)){
+        id2node[num_nodes] = node;
         node2id[node] = num_nodes++;
     }
 

@@ -14,6 +14,7 @@ class Graph{
         ~Graph();
 
         long searchNodeId(string node);
+        string searchNode(long id);
 
         // Functions of getting elements
         long getNumNodes() const;
@@ -27,6 +28,7 @@ class Graph{
 
         // Elements
         map< string, long > node2id;
+        map< long, string > id2node;
         map< long, vector<long> > graph;
         long num_nodes;
         long num_edges;
