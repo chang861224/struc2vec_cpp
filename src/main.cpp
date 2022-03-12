@@ -9,7 +9,7 @@ using namespace std;
 
 int main(){
     srand(time(NULL));
-    string filename = "barbell.txt";
+    string filename = "../graph/barbell.txt";
     Graph G(filename, false);
 
     cout << "Total edges: " << G.getNumEdges() << endl;
