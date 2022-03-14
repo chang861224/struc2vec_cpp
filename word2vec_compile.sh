@@ -1,6 +1,6 @@
-cd word2vec
+cd src/word2vec
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ../
 make
-cd ../../
+cd ../../../
