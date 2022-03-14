@@ -33,3 +33,5 @@
 
 # Derived files
 random_walks.txt
+w2v.model
+embedding.emb
