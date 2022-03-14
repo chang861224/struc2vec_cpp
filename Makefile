@@ -1,5 +1,5 @@
 CC = g++
-FLAGS = -lm -pthread
+FLAGS = -lm -pthread -lpthread
 EXE = main.exe
 OBJS = main.o src/graph.o src/struc2vec.o src/utils.o
 W2V_OBJ = src/word2vec/build/lib/CMakeFiles/word2vec.dir/*.cpp.o
