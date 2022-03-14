@@ -9,7 +9,7 @@ using namespace std;
 
 int main(){
     srand(time(NULL));
-    string filename = "../graph/barbell.txt";
+    string filename = "../graph/PubMed.edgelist";
     Graph G(filename, false);
 
     cout << "Total edges: " << G.getNumEdges() << endl;
@@ -21,6 +21,8 @@ int main(){
     vector< vector<long> > walks = s.SimulateWalks(10, 80);
     
     SaveRandomWalks(walks, G);
+    word2vec_train("random_walks.txt", "w2v.model", 128);
+    SaveEmbedding("w2v.model", "embedding.emb", G);
 
     return 0;
 }
