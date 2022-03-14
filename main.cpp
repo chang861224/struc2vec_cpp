@@ -11,14 +11,15 @@ using namespace std;
 int main(){
     srand(time(NULL));
     string filename = "graph/PubMed.edgelist";
-    Graph G(filename, false);
 
+    bool undirected = false;
     int layers = 3;
     int num_walks = 10;
     int walk_length = 80;
 
     clock_t start = clock();
 
+    Graph G(filename, undirected);
     struc2vec model(G, true, layers);
 
     model.CreateDistNetwork();
