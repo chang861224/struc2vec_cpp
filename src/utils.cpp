@@ -50,23 +50,42 @@ void word2vec_train(string train_filename, string model_filename, int dimensions
     }
 }
 
-void SaveEmbedding(string w2v_filename, string embed_filename){
+void SaveEmbedding(string w2v_filename, string embed_filename, Graph G){
     // load pre-trained model
     unique_ptr<w2v::w2vModel_t> w2vModel;
     w2vModel.reset(new w2v::w2vModel_t());
     w2vModel->load(w2v_filename);
 
-    w2v::word2vec_t GGG(w2vModel, "GGG");
-
     ofstream f(embed_filename);
 
-    if(f.is_open()){
-        for(auto x: GGG){
-            f << x << " ";
+    for(auto i = 0 ; i < G.getNumNodes() ; i++){
+        string vertex = G.searchNode(i);
+        w2v::word2vec_t node(w2vModel, vertex);
+
+        f << vertex;
+
+        for(auto x: node){
+            f << " " << x;
         }
 
         f << endl;
     }
+
+    /*
+    w2v::word2vec_t GGG(w2vModel, "18847");
+
+    ofstream f(embed_filename);
+
+    if(f.is_open()){
+        f << "18847";
+
+        for(auto x: GGG){
+            f << " " << x;
+        }
+
+        f << endl;
+    }
+    */
 
     f.close();
 }
