@@ -3,13 +3,13 @@
 #include <map>
 #include <cstdlib>
 #include <ctime>
-#include "graph.h"
-#include "struc2vec.h"
+#include "src/graph.h"
+#include "src/struc2vec.h"
 using namespace std;
 
 int main(){
     srand(time(NULL));
-    string filename = "../graph/PubMed.edgelist";
+    string filename = "graph/PubMed.edgelist";
     Graph G(filename, false);
 
     cout << "Total edges: " << G.getNumEdges() << endl;
