@@ -9,8 +9,8 @@
 #include <utility>
 #include <cmath>
 #include <climits>
-#include "graph.h"
-#include "utils.h"
+#include "src/graph.h"
+#include "src/utils.h"
 using namespace std;
 
 class struc2vec{
