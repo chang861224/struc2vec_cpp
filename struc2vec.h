@@ -18,17 +18,16 @@ class struc2vec{
         struc2vec(Graph input_graph, bool input_is_directed, int input_layers=3);
         ~struc2vec();
 
+        void PreprocessNeighborsBFS();
+        map< pair<long, long>, map<int, double> > CalDistAllVertices();
+        map< pair<long, long>, map<int, double> > CalDistVertices();
         void CreateDistNetwork();
         void PreprocessParamsRandomWalk();
         vector< vector<long> > SimulateWalks(int num_walks, int walk_length);
 
     private:
-        void PreprocessNeighborsBFS();
         void PreprocessDegreeLists();
         void CreateVectors();
-        
-        map< pair<long, long>, map<int, double> > CalDistAllVertices();
-        map< pair<long, long>, map<int, double> > CalDistVertices();
         
         map< int, vector<double> > getDegreeLists(long root);
         void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);
