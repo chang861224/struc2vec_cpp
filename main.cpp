@@ -22,6 +22,8 @@ int main(){
     Graph G(filename, undirected);
     struc2vec model(G, true, layers);
 
+    model.PreprocessNeighborsBFS();
+    model.CalDistVertices();
     model.CreateDistNetwork();
     model.PreprocessParamsRandomWalk();
     vector< vector<long> > walks = model.SimulateWalks(num_walks, walk_length);
