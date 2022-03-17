@@ -5,6 +5,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <cstring>
 using namespace std;
 
 class Graph{
