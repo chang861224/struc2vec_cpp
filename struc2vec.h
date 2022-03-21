@@ -15,12 +15,12 @@ using namespace std;
 
 class struc2vec{
     public:
-        struc2vec(Graph input_graph, bool input_is_directed, int input_layers=80);
+        struc2vec(Graph input_graph, bool input_is_directed, int input_layers=3);
         ~struc2vec();
 
         void PreprocessNeighborsBFS();
-        map< pair<long, long>, map<int, double> > CalDistAllVertices();
-        map< pair<long, long>, map<int, double> > CalDistVertices();
+        void CalDistAllVertices();
+        void CalDistVertices();
         void CreateDistNetwork();
         void PreprocessParamsRandomWalk();
         vector< vector<long> > SimulateWalks(int num_walks, int walk_length);
@@ -42,9 +42,6 @@ class struc2vec{
         void GenerateDistNetworkPart1();
         void GenerateDistNetworkPart2();
         void GenerateDistNetworkPart3();
-        void GenerateDistNetworkPart4();
-        void GenerateDistNetworkPart5();
-        void GenerateDistNetworkPart6();
         void AliasSetup(vector<double> probs, vector<int>& J, vector<double>& q);
 
         Graph G;
@@ -54,6 +51,8 @@ class struc2vec{
         map< int, map< string, vector<long> > > degrees;
         map< long, map< int, vector<double> > > degree_list;
         map< long, map< int, vector< vector<double> > > > d_list;
+
+        map< pair<long, long>, map<int, double> > distances;
 
         map< long, map< int, vector<double> > > weights;
         map< int, double > average_weight;
