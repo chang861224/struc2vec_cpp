@@ -412,7 +412,7 @@ void struc2vec::GenerateDistNetworkPart3(){
 
             for(long v2: v.second){
                 double w = weights_distances[layer].count(make_pair(v1, v2)) ? 
-                    exp(-weights_distances[layer][make_pair(v1, v2)]) : -exp(weights_distances[layer][make_pair(v2, v1)]);
+                    exp(-weights_distances[layer][make_pair(v1, v2)]) : exp(-weights_distances[layer][make_pair(v2, v1)]);
 
                 e_list.push_back(w);
                 sum_w += w;
