@@ -23,7 +23,8 @@ int main(){
     struc2vec model(G, true);
 
     model.PreprocessNeighborsBFS();
-    model.CalDistVertices();
+    // model.CalDistVertices();
+    model.CalDistAllVertices();
     model.CreateDistNetwork();
     model.PreprocessParamsRandomWalk();
     vector< vector<long> > walks = model.SimulateWalks(num_walks, walk_length);
