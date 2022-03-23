@@ -287,8 +287,10 @@ vector< vector<long> > struc2vec::SimulateWalks(int num_walks, int walk_length){
     vector< vector<long> > walks;
     map< long, vector<long> > g = G.getGraph();
 
-    for(auto& v: g){
-        walks.push_back(ExecuteRandomWalk(v.first, walk_length));
+    for(int i = 0 ; i < num_walks ; i++){
+        for(auto& v: g){
+            walks.push_back(ExecuteRandomWalk(v.first, walk_length));
+        }
     }
 
     return walks;
