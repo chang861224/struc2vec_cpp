@@ -12,7 +12,7 @@ int main(){
     srand(time(NULL));
     string filename = "graph/PubMed.edgelist";
 
-    bool undirected = false;
+    bool undirected = true;
     // int layers = 3;
     int num_walks = 10;
     int walk_length = 80;
