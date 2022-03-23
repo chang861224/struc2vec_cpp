@@ -15,7 +15,7 @@ using namespace std;
 
 class struc2vec{
     public:
-        struc2vec(Graph input_graph, bool input_is_directed, int input_layers=3);
+        struc2vec(Graph input_graph, bool input_is_directed, int input_layers=10);
         ~struc2vec();
 
         void PreprocessNeighborsBFS();
@@ -26,8 +26,8 @@ class struc2vec{
         vector< vector<long> > SimulateWalks(int num_walks, int walk_length);
 
     private:
-        void PreprocessDegreeLists();
-        void CreateVectors();
+        // void PreprocessDegreeLists();
+        // void CreateVectors();
         
         map< int, vector<double> > getDegreeLists(long root);
         void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);

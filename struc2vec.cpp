@@ -36,7 +36,9 @@ map< int, vector<double> > struc2vec::getDegreeLists(long root){
         queue.erase(queue.begin());
         timeToDepthIncrease -= 1;
 
-        l.push_back(double(g[vertex].size()));
+        if(g[vertex].size()){
+            l.push_back(double(g[vertex].size()));
+        }
 
         for(long v: g[vertex]){
             if(!vetor_marcacao[v]){
@@ -65,12 +67,12 @@ map< int, vector<double> > struc2vec::getDegreeLists(long root){
     clock_t end = clock();
     double duration = double(end - start) / double(CLOCKS_PER_SEC);
 
-    char str[100];
-    sprintf(str, "BFS vertex %ld. Time: %lf secs", root, duration);
-    cout << str << endl;
+    // char str[100];
+    // sprintf(str, "BFS vertex %ld. Time: %lf secs", root, duration);
+    // cout << str << endl;
     return listas;
 }
-
+/*
 void struc2vec::PreprocessDegreeLists(){
     cout << "Creating compactDegreeList..." << endl;
     map< long, map< int, map<double, double> > > d_freq;
@@ -100,7 +102,8 @@ void struc2vec::PreprocessDegreeLists(){
     }
     cout << "compactDegreeList created!" << endl;
 }
-
+*/
+/*
 void struc2vec::CreateVectors(){
     set<int> degrees_sorted;
     map< long, vector<long> > g = G.getGraph();
@@ -128,18 +131,35 @@ void struc2vec::CreateVectors(){
         }
     }
 }
-
+*/
 void struc2vec::CalDistAllVertices(){
     map< long, vector<long> > g = G.getGraph();
+
+    vector< vector<long> > list_vertices;
+
+    for(auto vertex: g){
+        long v = vertex.first;
+        vector<long> tmp;
+
+        for(auto vertex_d: degree_list){
+            long vd = vertex_d.first;
+
+            if(G.searchNode(vd) > G.searchNode(v)){
+                tmp.push_back(vd);
+            }
+        }
+
+        list_vertices.push_back(tmp);
+    }
+
     long cont = 0;
 
     for(auto iter1 = g.begin() ; iter1 != g.end() ; iter1++){
         auto v1 = iter1->first;
         map< int, vector<double> > degrees_v1 = degree_list[v1];
 
-        for(auto iter2 = g.begin() ; iter2 != g.end() ; iter2++){
+        for(auto v2: list_vertices[cont]){
             clock_t start = clock();
-            auto v2 = iter2->first;
             map< int, vector<double> >degrees_v2 = degree_list[v2];
             int max_layer = min(degrees_v1.size(), degrees_v2.size());
 
@@ -150,13 +170,22 @@ void struc2vec::CalDistAllVertices(){
             clock_t end = clock();
             double duration = double(end - start) / double(CLOCKS_PER_SEC);
 
-            char str[100];
-            sprintf(str, "fastDTW between vertices (%ld, %ld). Time: %lf secs", v1, v2, duration);
-            cout << str << endl;
+            // char str[100];
+            // sprintf(str, "fastDTW between vertices (%ld, %ld). Time: %lf secs", v1, v2, duration);
+            // cout << str << endl;
         }
+
+        cont += 1;
     }
 
     ConsolideDist(distances);
+    for(auto m: distances){
+        auto p = m.first;
+        cout << "( " << G.searchNode(p.first) << ", " << G.searchNode(p.second) << " )" << endl;
+        for(auto layer: m.second){
+            cout << layer.first << ": " << layer.second << endl;
+        }
+    }
 }
 
 void struc2vec::CalDistVertices(){
@@ -217,6 +246,14 @@ void struc2vec::PreprocessParamsRandomWalk(){
 
     for(int layer = 0 ; layer < layers ; layer++){
         for(auto& weight: weights){
+            if(!sum_weights.count(layer)){
+                sum_weights[layer] = 0.0;
+            }
+
+            if(!amount_edges.count(layer)){
+                amount_edges[layer] = 0.0;
+            }
+
             for(auto& w: weight.second[layer]){
                 sum_weights[layer] += w;
                 amount_edges[layer] += 1;
@@ -318,9 +355,9 @@ vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length){
     clock_t end = clock();
     double duration = double(end - start) / double(CLOCKS_PER_SEC);
 
-    char str[100];
-    sprintf(str, "RW - vertex %ld. Time: %lf secs", vertex, duration);
-    cout << str << endl;
+    // char str[100];
+    // sprintf(str, "RW - vertex %ld. Time: %lf secs", vertex, duration);
+    // cout << str << endl;
 
     return path;
 }
@@ -338,7 +375,6 @@ double struc2vec::ProbMoveup(long num_neighbors){
 
 long struc2vec::AliasDraw(vector<int> J, vector<double> q){
     int K = J.size();
-
     int kk = int((double)rand() / RAND_MAX * K);
 
     if((double) rand() / RAND_MAX < q[kk]){
@@ -374,8 +410,16 @@ void struc2vec::GenerateDistNetwork(){
 
 void struc2vec::GenerateDistNetworkPart1(){
     for(auto distance: distances){
-        long v1 = distance.first.first;
-        long v2 = distance.first.second;
+        long v1, v2;
+
+        if(distance.first.first < distance.first.second){
+            v1 = distance.first.first;
+            v2 = distance.first.second;
+        }
+        else{
+            v2 = distance.first.first;
+            v1 = distance.first.second;
+        }
 
         for(auto dist: distance.second){
             int layer = dist.first;
@@ -388,8 +432,16 @@ void struc2vec::GenerateDistNetworkPart1(){
 
 void struc2vec::GenerateDistNetworkPart2(){
     for(auto distance: distances){
-        long v1 = distance.first.first;
-        long v2 = distance.first.second;
+        long v1, v2;
+
+        if(distance.first.first < distance.first.second){
+            v1 = distance.first.first;
+            v2 = distance.first.second;
+        }
+        else{
+            v2 = distance.first.first;
+            v1 = distance.first.second;
+        }
 
         for(auto dist: distance.second){
             int layer = dist.first;
