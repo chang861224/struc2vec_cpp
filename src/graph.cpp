@@ -51,25 +51,18 @@ void Graph::LoadEdgeList(string filename, bool undirected){
             string from_node = strtok(str, " ");
             string to_node = strtok(NULL, " ");
 
-            graph[Node2Id(from_node)].push_back(Node2Id(to_node));
-            num_edges += 1;
-
-            if(undirected){
-                graph[Node2Id(to_node)].push_back(Node2Id(to_node));
+            if(!count(graph[Node2Id(from_node)].begin(), graph[Node2Id(from_node)].end(), Node2Id(to_node))){
+                graph[Node2Id(from_node)].push_back(Node2Id(to_node));
                 num_edges += 1;
             }
-        }
-        /*
-        while(file >> from_node >> to_node){
-            graph[Node2Id(from_node)].push_back(Node2Id(to_node));
-            num_edges += 1;
 
             if(undirected){
-                graph[Node2Id(to_node)].push_back(Node2Id(to_node));
-                num_edges += 1;
+                if(!count(graph[Node2Id(to_node)].begin(), graph[Node2Id(to_node)].end(), Node2Id(from_node))){
+                    graph[Node2Id(to_node)].push_back(Node2Id(from_node));
+                    num_edges += 1;
+                }
             }
         }
-        */
 
         file.close();
     }
