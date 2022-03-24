@@ -71,22 +71,11 @@ void SaveEmbedding(string w2v_filename, string embed_filename, Graph G){
         f << endl;
     }
 
-    /*
-    w2v::word2vec_t GGG(w2vModel, "18847");
-
-    ofstream f(embed_filename);
-
-    if(f.is_open()){
-        f << "18847";
-
-        for(auto x: GGG){
-            f << " " << x;
-        }
-
-        f << endl;
-    }
-    */
-
     f.close();
 }
 
+void logging(char* s){
+    ofstream file("strc2vec.log", ios_base::app);
+    file << s << endl;
+    file.close();
+}
