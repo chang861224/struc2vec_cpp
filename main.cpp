@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
-//#include "src/graph.h"
 #include "struc2vec.h"
 using namespace std;
 
@@ -20,7 +19,7 @@ int main(){
     clock_t start = clock();
 
     Graph G(filename, undirected);
-    struc2vec model(G, true);
+    struc2vec model(G);
 
     model.PreprocessNeighborsBFS();
     // model.CalDistVertices();
