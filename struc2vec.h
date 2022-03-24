@@ -15,7 +15,7 @@ using namespace std;
 
 class struc2vec{
     public:
-        struc2vec(Graph input_graph, bool input_is_directed, int input_layers=10);
+        struc2vec(Graph input_graph, int input_layers=10);
         ~struc2vec();
 
         void PreprocessNeighborsBFS();
@@ -45,7 +45,6 @@ class struc2vec{
         void AliasSetup(vector<double> probs, vector<int>& J, vector<double>& q);
 
         Graph G;
-        bool is_directed;
         int layers;
 
         map< int, map< string, vector<long> > > degrees;

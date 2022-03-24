@@ -1,9 +1,9 @@
 #include "struc2vec.h"
 #include <ctime>
 
-struc2vec::struc2vec(Graph input_graph, bool input_is_directed, int input_layers): G(input_graph){
-    is_directed = input_is_directed;
+struc2vec::struc2vec(Graph input_graph, int input_layers): G(input_graph){
     layers = input_layers;
+    remove("struc2vec.log");
 }
 
 struc2vec::~struc2vec(){
@@ -67,9 +67,10 @@ map< int, vector<double> > struc2vec::getDegreeLists(long root){
     clock_t end = clock();
     double duration = double(end - start) / double(CLOCKS_PER_SEC);
 
-    // char str[100];
-    // sprintf(str, "BFS vertex %ld. Time: %lf secs", root, duration);
-    // cout << str << endl;
+    char* str = new char[100];
+    sprintf(str, "BFS vertex %ld. Time: %lf secs", root, duration);
+    logging(str);
+    free(str);
     return listas;
 }
 /*
@@ -170,22 +171,16 @@ void struc2vec::CalDistAllVertices(){
             clock_t end = clock();
             double duration = double(end - start) / double(CLOCKS_PER_SEC);
 
-            // char str[100];
-            // sprintf(str, "fastDTW between vertices (%ld, %ld). Time: %lf secs", v1, v2, duration);
-            // cout << str << endl;
+            char* str = new char[100];
+            sprintf(str, "fastDTW between vertices (%ld, %ld). Time: %lf secs", v1, v2, duration);
+            logging(str);
+            free(str);
         }
 
         cont += 1;
     }
 
     ConsolideDist(distances);
-    for(auto m: distances){
-        auto p = m.first;
-        cout << "( " << G.searchNode(p.first) << ", " << G.searchNode(p.second) << " )" << endl;
-        for(auto layer: m.second){
-            cout << layer.first << ": " << layer.second << endl;
-        }
-    }
 }
 
 void struc2vec::CalDistVertices(){
@@ -210,7 +205,10 @@ void struc2vec::CalDistVertices(){
 }
 
 void struc2vec::ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer){
-    cout << "Consolidating distances..." << endl;
+    char* str = new char[100];
+    sprintf(str, "%s", "Consolidating distances...");
+    logging(str);
+
     for(auto& distance: distances){
         map<int, double>& layers = distance.second;
 
@@ -232,7 +230,10 @@ void struc2vec::ConsolideDist(map< pair<long, long>, map<int, double> >& distanc
             layers[layer] += layers[layer - 1];
         }
     }
-    cout << "Distances consolidated." << endl;
+
+    sprintf(str, "%s", "Distances consolidated.");
+    logging(str);
+    free(str);
 }
 
 void struc2vec::CreateDistNetwork(){
@@ -240,7 +241,10 @@ void struc2vec::CreateDistNetwork(){
 }
 
 void struc2vec::PreprocessParamsRandomWalk(){
-    cout << "Loading distances_nets from disk..." << endl;
+    char* str = new char[100];
+    sprintf(str, "%s", "Preprocessing parameters for random walk....");
+    logging(str);
+
     map< int, double > sum_weights;
     map< int, double > amount_edges;
 
@@ -259,7 +263,8 @@ void struc2vec::PreprocessParamsRandomWalk(){
                 amount_edges[layer] += 1;
             }
         }
-        cout << "Layer " << layer << " executed." << endl;
+        sprintf(str, "Layer %d executed.", layer);
+        logging(str);
     }
 
     for(int layer = 0 ; layer < layers ; layer++){
@@ -267,7 +272,9 @@ void struc2vec::PreprocessParamsRandomWalk(){
     }
 
     for(int layer = 0 ; layer < layers ; layer++){
-        cout << "Executing layer " << layer << "..." << endl;
+        sprintf(str, "Executing layer %d...", layer);
+        logging(str);
+
         for(auto& weight: weights){
             long cont_neighbors = 0;
 
@@ -279,8 +286,12 @@ void struc2vec::PreprocessParamsRandomWalk(){
 
             amount_neighbors[layer][weight.first] = cont_neighbors;
         }
-        cout << "Layer " << layer << " executed." << endl;
+        
+        sprintf(str, "Layer %d executed.", layer);
+        logging(str);
     }
+
+    free(str);
 }
 
 vector< vector<long> > struc2vec::SimulateWalks(int num_walks, int walk_length){
@@ -357,9 +368,10 @@ vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length){
     clock_t end = clock();
     double duration = double(end - start) / double(CLOCKS_PER_SEC);
 
-    // char str[100];
-    // sprintf(str, "RW - vertex %ld. Time: %lf secs", vertex, duration);
-    // cout << str << endl;
+    char* str = new char[100];
+    sprintf(str, "RW - vertex %ld. Time: %lf secs", vertex, duration);
+    logging(str);
+    free(str);
 
     return path;
 }
@@ -389,25 +401,30 @@ long struc2vec::AliasDraw(vector<int> J, vector<double> q){
 void struc2vec::GenerateDistNetwork(){
     clock_t start, end;
     double duration;
-    char str[100];
+    char* str = new char[100];
+
     start = clock();
     GenerateDistNetworkPart1();
     end = clock();
     duration = double(end - start) / double(CLOCKS_PER_SEC);
     sprintf(str, "- Time - Part 1: %lf secs", duration);
-    cout << str << endl;
+    logging(str);
+    
     start = clock();
     GenerateDistNetworkPart2();
     end = clock();
     duration = double(end - start) / double(CLOCKS_PER_SEC);
     sprintf(str, "- Time - Part 2: %lf secs", duration);
-    cout << str << endl;
+    logging(str);
+    
     start = clock();
     GenerateDistNetworkPart3();
     end = clock();
     duration = double(end - start) / double(CLOCKS_PER_SEC);
     sprintf(str, "- Time - Part 3: %lf secs", duration);
-    cout << str << endl;
+    logging(str);
+
+    free(str);
 }
 
 void struc2vec::GenerateDistNetworkPart1(){
