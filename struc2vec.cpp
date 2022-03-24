@@ -160,7 +160,6 @@ void struc2vec::CalDistAllVertices(){
         map< int, vector<double> > degrees_v1 = degree_list[v1];
 
         for(auto v2: list_vertices[cont]){
-            clock_t start = clock();
             map< int, vector<double> >degrees_v2 = degree_list[v2];
             int max_layer = min(degrees_v1.size(), degrees_v2.size());
 
@@ -168,13 +167,6 @@ void struc2vec::CalDistAllVertices(){
                 double dist = DTW(degrees_v1[layer], degrees_v2[layer]);
                 distances[make_pair(v1, v2)][layer] = dist;
             }
-            clock_t end = clock();
-            double duration = double(end - start) / double(CLOCKS_PER_SEC);
-
-            char* str = new char[100];
-            sprintf(str, "fastDTW between vertices (%ld, %ld). Time: %lf secs", v1, v2, duration);
-            logging(str);
-            free(str);
         }
 
         cont += 1;
