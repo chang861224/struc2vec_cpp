@@ -75,7 +75,7 @@ void SaveEmbedding(string w2v_filename, string embed_filename, Graph G){
 }
 
 void logging(char* s){
-    ofstream file("strc2vec.log", ios_base::app);
+    ofstream file("struc2vec.log", ios_base::app);
     file << s << endl;
     file.close();
 }
