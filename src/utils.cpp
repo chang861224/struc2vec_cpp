@@ -50,13 +50,15 @@ void word2vec_train(string train_filename, string model_filename, int dimensions
     }
 }
 
-void SaveEmbedding(string w2v_filename, string embed_filename, Graph G){
+void SaveEmbedding(string w2v_filename, string embed_filename, Graph G, int dimensions){
     // load pre-trained model
     unique_ptr<w2v::w2vModel_t> w2vModel;
     w2vModel.reset(new w2v::w2vModel_t());
     w2vModel->load(w2v_filename);
 
     ofstream f(embed_filename);
+
+    f << G.getNumNodes() << " " << dimensions << endl;
 
     for(auto i = 0 ; i < G.getNumNodes() ; i++){
         string vertex = G.searchNode(i);
