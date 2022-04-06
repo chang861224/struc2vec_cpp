@@ -15,7 +15,7 @@ using namespace std;
 
 class struc2vec{
     public:
-        struc2vec(Graph input_graph, int input_layers=10);
+        struc2vec(Graph input_graph, int input_layers=3);
         ~struc2vec();
 
         void PreprocessNeighborsBFS();
