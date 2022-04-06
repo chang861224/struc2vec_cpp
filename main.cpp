@@ -30,7 +30,7 @@ int main(){
     
     SaveRandomWalks(walks, G);
     word2vec_train("random_walks.txt", "w2v.model", 128);
-    SaveEmbedding("w2v.model", "embedding.emb", G);
+    SaveEmbedding("w2v.model", "embedding.emb", G, 128);
 
     clock_t end = clock();
 
