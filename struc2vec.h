@@ -33,7 +33,7 @@ class struc2vec{
         void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);
         double DTW(vector<double>& s, vector<double>& t);
         
-        vector< long > ExecuteRandomWalk(long vertex, int walk_length);
+        vector< long > ExecuteRandomWalk(long vertex, int walk_length, vector<long> path);
         long ChooseNeighbor(long vertex, int layer);
         double ProbMoveup(long num_neighbors);
         long AliasDraw(vector<int> J, vector<double> q);

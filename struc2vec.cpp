@@ -10,8 +10,15 @@ struc2vec::~struc2vec(){
 }
 
 void struc2vec::PreprocessNeighborsBFS(){
+    vector<long> vertices;
+
     for(auto& v: G.getGraph()){
-        degree_list[v.first] = getDegreeLists(v.first);
+        vertices.push_back(v.first);
+    }
+
+    #pragma omp parallel for shared(degree_list)
+    for(long v = 0 ; v < vertices.size() ; v++){
+        degree_list[v] = getDegreeLists(v);
     }
 }
 
@@ -138,6 +145,26 @@ void struc2vec::CalDistAllVertices(){
 
     vector< vector<long> > list_vertices;
 
+    auto iter = g.begin();
+
+    #pragma omp parallel for
+    for(auto i = 0 ; i < g.size() ; i++){
+        long v = iter->first;
+        vector<long> tmp;
+
+        for(auto vertex_d: degree_list){
+            long vd = vertex_d.first;
+
+            if(G.searchNode(vd) > G.searchNode(v)){
+                tmp.push_back(vd);
+            }
+        }
+
+        list_vertices.push_back(tmp);
+        iter++;
+    }
+
+    /*
     for(auto vertex: g){
         long v = vertex.first;
         vector<long> tmp;
@@ -152,10 +179,13 @@ void struc2vec::CalDistAllVertices(){
 
         list_vertices.push_back(tmp);
     }
+    */
 
     long cont = 0;
+    auto iter1 = g.begin();
 
-    for(auto iter1 = g.begin() ; iter1 != g.end() ; iter1++){
+    #pragma omp parallel for
+    for(auto i = 0 ; i < g.size() ; i++){
         auto v1 = iter1->first;
         map< int, vector<double> > degrees_v1 = degree_list[v1];
 
@@ -170,6 +200,7 @@ void struc2vec::CalDistAllVertices(){
         }
 
         cont += 1;
+        iter1++;
     }
 
     ConsolideDist(distances);
@@ -178,6 +209,7 @@ void struc2vec::CalDistAllVertices(){
 void struc2vec::CalDistVertices(){
     map< long, vector<long> > g = G.getGraph();
 
+    // #pragma omp parallel for shared(distances)
     for(auto iter: g){
         auto v1 = iter.first;
         map< int, vector<double> > lists_v1 = degree_list[v1];
@@ -201,6 +233,7 @@ void struc2vec::ConsolideDist(map< pair<long, long>, map<int, double> >& distanc
     sprintf(str, "%s", "Consolidating distances...");
     logging(str);
 
+    #pragma omp parallel
     for(auto& distance: distances){
         map<int, double>& layers = distance.second;
 
@@ -287,12 +320,27 @@ void struc2vec::PreprocessParamsRandomWalk(){
 }
 
 vector< vector<long> > struc2vec::SimulateWalks(int num_walks, int walk_length){
-    vector< vector<long> > walks;
     map< long, vector<long> > g = G.getGraph();
+    vector< vector<long> > walks(g.size() * num_walks, vector<long>());
+    vector<long> path;
+    int x = 0;
 
+    #pragma omp parallel for shared(walks) private(path) shared(x)
     for(int i = 0 ; i < num_walks ; i++){
         for(auto& v: g){
-            walks.push_back(ExecuteRandomWalk(v.first, walk_length));
+            clock_t start = clock();
+
+            path.clear();
+            // walks.push_back(ExecuteRandomWalk(v.first, walk_length, path));
+            walks[x++] = ExecuteRandomWalk(v.first, walk_length, path);
+
+            clock_t end = clock();
+            double duration = double(end - start) / double(CLOCKS_PER_SEC);
+
+            char* str = new char[100];
+            sprintf(str, "RW - vertex %ld. Time: %lf secs", v.first, duration);
+            logging(str);
+            free(str);
         }
     }
 
@@ -326,11 +374,10 @@ double struc2vec::DTW(vector<double>& s, vector<double>& t){
     return dtw_matrix[s_length][t_length];
 }
 
-vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length){
-    clock_t start = clock();
+vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length, vector<long> path){
     int init_layer = 0;
     int layer = init_layer;
-    vector<long> path;
+    // vector<long> path;
 
     path.push_back(vertex);
 
@@ -357,13 +404,6 @@ vector< long > struc2vec::ExecuteRandomWalk(long vertex, int walk_length){
             }
         }
     }
-    clock_t end = clock();
-    double duration = double(end - start) / double(CLOCKS_PER_SEC);
-
-    char* str = new char[100];
-    sprintf(str, "RW - vertex %ld. Time: %lf secs", vertex, duration);
-    logging(str);
-    free(str);
 
     return path;
 }
