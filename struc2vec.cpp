@@ -75,14 +75,8 @@ map< int, vector<double> > struc2vec::getDegreeLists(long root){
 
     clock_t end = clock();
     double duration = double(end - start) / double(CLOCKS_PER_SEC);
-    printf("BFS vertex %ld. Time: %lf secs\n", root, duration);
+    printf("BFS vertex %s. Time: %lf secs\n", G.searchNode(root).c_str(), duration);
 
-    /*
-    char* str = new char[100];
-    sprintf(str, "BFS vertex %ld. Time: %lf secs", root, duration);
-    logging(str);
-    free(str);
-    */
     return listas;
 }
 /*
@@ -234,11 +228,6 @@ void struc2vec::CalDistVertices(){
 }
 
 void struc2vec::ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer){
-    /*
-    char* str = new char[100];
-    sprintf(str, "%s", "Consolidating distances...");
-    logging(str);
-    */
     printf("Consolidating distances...\n");
 
     #pragma omp parallel
@@ -264,11 +253,6 @@ void struc2vec::ConsolideDist(map< pair<long, long>, map<int, double> >& distanc
         }
     }
 
-    /*
-    sprintf(str, "%s", "Distances consolidated.");
-    logging(str);
-    free(str);
-    */
     printf("Distances consolidated.\n");
 }
 
@@ -277,11 +261,6 @@ void struc2vec::CreateDistNetwork(){
 }
 
 void struc2vec::PreprocessParamsRandomWalk(){
-    /*
-    char* str = new char[100];
-    sprintf(str, "%s", "Preprocessing parameters for random walk....");
-    logging(str);
-    */
     printf("Preprocessing parameters for random walk....\n");
 
     map< int, double > sum_weights;
@@ -302,8 +281,7 @@ void struc2vec::PreprocessParamsRandomWalk(){
                 amount_edges[layer] += 1;
             }
         }
-        // sprintf(str, "Layer %d executed.", layer);
-        // logging(str);
+
         printf("Layer %d executed.\n", layer);
     }
 
@@ -312,8 +290,6 @@ void struc2vec::PreprocessParamsRandomWalk(){
     }
 
     for(int layer = 0 ; layer < layers ; layer++){
-        // sprintf(str, "Executing layer %d...", layer);
-        // logging(str);
         printf("Executing layer %d...\n", layer);
 
         for(auto& weight: weights){
@@ -328,12 +304,8 @@ void struc2vec::PreprocessParamsRandomWalk(){
             amount_neighbors[layer][weight.first] = cont_neighbors;
         }
         
-        // sprintf(str, "Layer %d executed.", layer);
-        // logging(str);
         printf("Layer %d executed.\n", layer);
     }
-
-    // free(str);
 }
 
 // vector< vector<long> > struc2vec::SimulateWalks(int num_walks, int walk_length){
@@ -349,40 +321,10 @@ void struc2vec::SimulateWalks(int num_walks, int walk_length){
     #pragma omp critical
     for(int i = 0 ; i < num_walks ; i++){
         for(auto& v: g){
-            // clock_t start = clock();
-
             // path.clear();
             walks.push_back(ExecuteRandomWalk(v.first, walk_length));
             // walks.push_back(ExecuteRandomWalk(v.first, walk_length, path));
             // walks[x++] = ExecuteRandomWalk(v.first, walk_length, path);
-
-            /*
-            vector<long> path = ExecuteRandomWalk(v.first, walk_length);
-
-            string s = "";
-
-            for(auto vertex: path){
-                s += G.searchNode(vertex);
-                s += " ";
-            }
-
-            s += "\n";
-
-            ofstream f("random_walks.txt", std::ios_base::app);
-            f << s;
-            f.close();
-
-            clock_t end = clock();
-            double duration = double(end - start) / double(CLOCKS_PER_SEC);
-            printf("RW - vertex %ld. Time: %lf secs\n", v.first, duration);
-            */
-
-            /*
-            char* str = new char[100];
-            sprintf(str, "RW - vertex %ld. Time: %lf secs", v.first, duration);
-            logging(str);
-            free(str);
-            */
         }
     }
 
@@ -403,8 +345,6 @@ void struc2vec::SimulateWalks(int num_walks, int walk_length){
     }
 
     f.close();
-
-    // return walks;
 }
 
 double struc2vec::DTW(vector<double>& s, vector<double>& t){
@@ -493,35 +433,24 @@ long struc2vec::AliasDraw(vector<int> J, vector<double> q){
 void struc2vec::GenerateDistNetwork(){
     clock_t start, end;
     double duration;
-    /*
-    char* str = new char[100];
-    */
 
     start = clock();
     GenerateDistNetworkPart1();
     end = clock();
     duration = double(end - start) / double(CLOCKS_PER_SEC);
-    // sprintf(str, "- Time - Part 1: %lf secs", duration);
-    // logging(str);
     printf("- Time - Part 1: %lf secs\n", duration);
     
     start = clock();
     GenerateDistNetworkPart2();
     end = clock();
     duration = double(end - start) / double(CLOCKS_PER_SEC);
-    // sprintf(str, "- Time - Part 2: %lf secs", duration);
-    // logging(str);
     printf("- Time - Part 2: %lf secs\n", duration);
     
     start = clock();
     GenerateDistNetworkPart3();
     end = clock();
     duration = double(end - start) / double(CLOCKS_PER_SEC);
-    // sprintf(str, "- Time - Part 3: %lf secs", duration);
-    // logging(str);
     printf("- Time - Part 3: %lf secs\n", duration);
-
-    // free(str);
 }
 
 void struc2vec::GenerateDistNetworkPart1(){
