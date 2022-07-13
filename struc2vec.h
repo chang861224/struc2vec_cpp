@@ -11,6 +11,7 @@
 #include <climits>
 #include "src/graph.h"
 #include "src/utils.h"
+#include <fstream>
 using namespace std;
 
 class struc2vec{
@@ -23,7 +24,8 @@ class struc2vec{
         void CalDistVertices();
         void CreateDistNetwork();
         void PreprocessParamsRandomWalk();
-        vector< vector<long> > SimulateWalks(int num_walks, int walk_length);
+        // vector< vector<long> > SimulateWalks(int num_walks, int walk_length);
+        void SimulateWalks(int num_walks, int walk_length);
 
     private:
         // void PreprocessDegreeLists();
@@ -33,7 +35,7 @@ class struc2vec{
         void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);
         double DTW(vector<double>& s, vector<double>& t);
         
-        vector< long > ExecuteRandomWalk(long vertex, int walk_length, vector<long> path);
+        vector< long > ExecuteRandomWalk(long vertex, int walk_length);
         long ChooseNeighbor(long vertex, int layer);
         double ProbMoveup(long num_neighbors);
         long AliasDraw(vector<int> J, vector<double> q);
