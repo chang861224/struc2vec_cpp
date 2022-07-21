@@ -17,9 +17,9 @@ void struc2vec::PreprocessNeighborsBFS(){
         vertices.push_back(v.first);
     }
 
-    #pragma omp critical
     #pragma omp parallel for num_threads(40) shared(degree_list)
     for(long v = 0 ; v < vertices.size() ; v++){
+        #pragma omp critical
         degree_list[v] = getDegreeLists(v);
     }
 }
@@ -207,18 +207,24 @@ void struc2vec::CalDistAllVertices(){
 
 void struc2vec::CalDistVertices(){
     map< long, vector<long> > g = G.getGraph();
+    vector<long> vertices;
 
-    // #pragma omp parallel for shared(distances)
-    for(auto iter: g){
-        auto v1 = iter.first;
+    for(auto& v: G.getGraph()){
+        vertices.push_back(v.first);
+    }
+
+    #pragma omp parallel for num_threads(40) shared(distances)
+    for(long v1 = 0 ; v1 < vertices.size() ; v1++){
         map< int, vector<double> > lists_v1 = degree_list[v1];
 
-        for(auto v2: iter.second){
+        for(auto v2: g[v1]){
             map< int, vector<double> >lists_v2 = degree_list[v2];
             int max_layer = min(lists_v1.size(), lists_v2.size());
 
             for(auto layer = 0 ; layer < max_layer ; layer++){
                 double dist = DTW(lists_v1[layer], lists_v2[layer]);
+
+                #pragma omp critical
                 distances[make_pair(v1, v2)][layer] = dist;
             }
         }
@@ -308,26 +314,22 @@ void struc2vec::PreprocessParamsRandomWalk(){
     }
 }
 
-// vector< vector<long> > struc2vec::SimulateWalks(int num_walks, int walk_length){
 void struc2vec::SimulateWalks(int num_walks, int walk_length){
     map< long, vector<long> > g = G.getGraph();
-    //vector< vector<long> > walks(g.size() * num_walks, vector<long>());
     vector< vector<long> > walks;
-    // vector<long> path;
-    // int x = 0;
 
-    // #pragma omp parallel for shared(walks) private(path) shared(x)
-    // #pragma omp parallel for
-    #pragma omp critical
+    // #pragma omp parallel for shared(walks)
     for(int i = 0 ; i < num_walks ; i++){
         for(auto& v: g){
-            // path.clear();
-            walks.push_back(ExecuteRandomWalk(v.first, walk_length));
-            // walks.push_back(ExecuteRandomWalk(v.first, walk_length, path));
-            // walks[x++] = ExecuteRandomWalk(v.first, walk_length, path);
+            auto rw = ExecuteRandomWalk(v.first, walk_length);
+
+            // #pragma omp critical
+            walks.push_back(rw);
+            printf("RW - vertex %s.\n", G.searchNode(v.first).c_str());
         }
     }
 
+    printf("Saving random walks....\n");
     ofstream f("random_walks.txt");
     
     for(auto path: walks){
@@ -340,11 +342,10 @@ void struc2vec::SimulateWalks(int num_walks, int walk_length){
 
         s += "\n";
         f << s;
-            
-        printf("RW - vertex %s.\n", G.searchNode(path[0]).c_str());
     }
 
     f.close();
+    printf("Random walks path done!!\n");
 }
 
 double struc2vec::DTW(vector<double>& s, vector<double>& t){
