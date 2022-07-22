@@ -19,8 +19,11 @@ void struc2vec::PreprocessNeighborsBFS(){
 
     #pragma omp parallel for num_threads(40) shared(degree_list)
     for(long v = 0 ; v < vertices.size() ; v++){
+        auto degree_list_v = getDegreeLists(v);
+        
         #pragma omp critical
-        degree_list[v] = getDegreeLists(v);
+        // degree_list[v] = getDegreeLists(v);
+        degree_list[v] = degree_list_v;
     }
 }
 
