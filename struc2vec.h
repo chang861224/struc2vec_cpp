@@ -20,7 +20,7 @@ class struc2vec{
         ~struc2vec();
 
         void PreprocessNeighborsBFS();
-        void CalDistAllVertices();
+        // void CalDistAllVertices();
         void CalDistVertices();
         void CreateDistNetwork();
         void PreprocessParamsRandomWalk();
@@ -32,7 +32,7 @@ class struc2vec{
         // void CreateVectors();
         
         map< int, vector<double> > getDegreeLists(long root);
-        void ConsolideDist(map< pair<long, long>, map<int, double> >& distances, int start_layer=1);
+        void ConsolideDist(map< pair<long, long>, map<int, double> >& dists, int start_layer=1);
         double DTW(vector<double>& s, vector<double>& t);
         
         vector< long > ExecuteRandomWalk(long vertex, int walk_length);
