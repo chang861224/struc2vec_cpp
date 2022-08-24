@@ -17,17 +17,69 @@ void struc2vec::PreprocessNeighborsBFS(){
         vertices.push_back(v.first);
     }
 
-    #pragma omp parallel for num_threads(40) shared(degree_list)
-    for(long v = 0 ; v < vertices.size() ; v++){
-        auto degree_list_v = getDegreeLists(vertices[v]);
+    loadPreprocessBFS();
+
+    cout << "Load file successed" << endl;
+    cout << "Number of vertices pre-trained: " << degree_list.size() << endl;
+
+    ofstream f("degree_list.txt", ios_base::app);
         
-        #pragma omp critical
-        // degree_list[v] = getDegreeLists(v);
-        degree_list[vertices[v]] = degree_list_v;
+    #pragma omp parallel for num_threads(40)
+    for(long v = 0 ; v < vertices.size() ; v++){
+        if(!degree_list.count(vertices[v])){
+            auto degree_list_v = getDegreeLists(vertices[v]);
+            
+            #pragma omp critical
+            f << degree_list_v;
+        }
+    }
+
+    f.close();
+
+    loadPreprocessBFS();
+    cout << "Number of total vertices: " << degree_list.size() << endl;
+}
+
+void struc2vec::loadPreprocessBFS(){
+    ifstream f("degree_list.txt");
+    string str;
+
+    if(f.is_open()){
+        while(getline(f, str)){
+            char* c_string = (char*)str.c_str();
+            char* token;
+            long node_id;
+            vector<double> list;
+
+            token = strtok(c_string, " ");
+            long vertex_id = G.searchNodeId(token);
+
+            int layer_count = 0;
+
+            token = strtok(NULL, " ");
+            list.push_back(atoi(token));
+
+            token = strtok(NULL, " ");
+
+            while(token != NULL){
+                if(token[0] == '|'){
+                    degree_list[vertex_id][layer_count] = list;
+                    list.clear();
+                    layer_count = strlen(token);
+                }
+                else{
+                    list.push_back(atoi(token));
+                }
+
+                token = strtok(NULL, " ");
+            }
+        }
+
+        f.close();
     }
 }
 
-map< int, vector<double> > struc2vec::getDegreeLists(long root){
+string struc2vec::getDegreeLists(long root){
     clock_t start = clock();
     map< int, vector<double> > listas;
     map< long, vector<long> > g = G.getGraph();
@@ -76,144 +128,37 @@ map< int, vector<double> > struc2vec::getDegreeLists(long root){
         }
     }
 
+    string s = G.searchNode(root);
+
+    for(int i = 0 ; i <= depth ; i++){
+        if(i != 0){
+            s += " ";
+        }
+
+        for(int j = 0 ; j < i ; j++){
+            s += "|";
+        }
+
+        for(auto deg: listas[i]){
+            s += " ";
+            s += to_string(int(deg));
+        }
+    }
+
+    s += "\n";
+
     clock_t end = clock();
     double duration = double(end - start) / double(CLOCKS_PER_SEC);
     printf("BFS vertex %s. Time: %lf secs\n", G.searchNode(root).c_str(), duration);
 
-    return listas;
+    return s;
 }
-/*
-void struc2vec::PreprocessDegreeLists(){
-    cout << "Creating compactDegreeList..." << endl;
-    map< long, map< int, map<double, double> > > d_freq;
-
-    for(auto& degree_v: degree_list){
-        for(auto& degree_layer: degree_v.second){
-            for(auto& degree: degree_layer.second){
-                d_freq[degree_v.first][degree_layer.first][degree] += 1;
-            }
-        }
-    }
-
-    for(auto& degree_v: d_freq){
-        for(auto& degree_layer: degree_v.second){
-            vector< vector<double> > list_d;
-
-            for(auto& degree: degree_layer.second){
-                vector<double> v;
-                v.push_back(degree.first);
-                v.push_back(degree.second);
-                list_d.push_back(v);
-            }
-
-            sort(list_d.begin(), list_d.end(), cmp);
-            d_list[degree_v.first][degree_layer.first] = list_d;
-        }
-    }
-    cout << "compactDegreeList created!" << endl;
-}
-*/
-/*
-void struc2vec::CreateVectors(){
-    set<int> degrees_sorted;
-    map< long, vector<long> > g = G.getGraph();
-
-    for(auto& v: g){
-        int degree = g[v.first].size();
-        degrees_sorted.insert(degree);
-        degrees[degree]["vertices"].push_back(v.first);
-    }
-
-    int l = degrees_sorted.size();
-    vector<int> degrees_sorted_v(degrees_sorted.begin(), degrees_sorted.end());
-
-    for(int i = 0 ; i < degrees_sorted_v.size() ; i++){
-        int degree = degrees_sorted_v[i];
-
-        if(i > 0){
-            degrees[degree]["before"].clear();
-            degrees[degree]["before"].push_back(degrees_sorted_v[i - 1]);
-        }
-
-        if(i < l - 1){
-            degrees[degree]["after"].clear();
-            degrees[degree]["after"].push_back(degrees_sorted_v[i + 1]);
-        }
-    }
-}
-*/
-/*
-void struc2vec::CalDistAllVertices(){
-    map< long, vector<long> > g = G.getGraph();
-
-    vector< vector<long> > list_vertices;
-
-    auto iter = g.begin();
-
-    #pragma omp parallel for
-    for(auto i = 0 ; i < g.size() ; i++){
-        long v = iter->first;
-        vector<long> tmp;
-
-        for(auto vertex_d: degree_list){
-            long vd = vertex_d.first;
-
-            if(G.searchNode(vd) > G.searchNode(v)){
-                tmp.push_back(vd);
-            }
-        }
-
-        list_vertices.push_back(tmp);
-        iter++;
-    }
-
-    for(auto vertex: g){
-        long v = vertex.first;
-        vector<long> tmp;
-
-        for(auto vertex_d: degree_list){
-            long vd = vertex_d.first;
-
-            if(G.searchNode(vd) > G.searchNode(v)){
-                tmp.push_back(vd);
-            }
-        }
-
-        list_vertices.push_back(tmp);
-    }
-
-    long cont = 0;
-    auto iter1 = g.begin();
-
-    #pragma omp parallel for
-    for(auto i = 0 ; i < g.size() ; i++){
-        auto v1 = iter1->first;
-        map< int, vector<double> > degrees_v1 = degree_list[v1];
-
-        for(auto v2: list_vertices[cont]){
-            map< int, vector<double> >degrees_v2 = degree_list[v2];
-            int max_layer = min(degrees_v1.size(), degrees_v2.size());
-
-            for(auto layer = 0 ; layer < max_layer ; layer++){
-                double dist = DTW(degrees_v1[layer], degrees_v2[layer]);
-                distances[make_pair(v1, v2)][layer] = dist;
-            }
-        }
-
-        cont += 1;
-        iter1++;
-    }
-
-    ConsolideDist(distances);
-}
-*/
 
 void struc2vec::CalDistVertices(){
     map< long, vector<long> > g = G.getGraph();
 
     printf("Calulating vertices distances....\n");
 
-    // #pragma omp parallel for num_threads(40) shared(distances)
     for(auto iter: g){
         auto v1 = iter.first;
         map< int, vector<double> > lists_v1 = degree_list[v1];
@@ -225,7 +170,6 @@ void struc2vec::CalDistVertices(){
             for(auto layer = 0 ; layer < max_layer ; layer++){
                 double dist = DTW(lists_v1[layer], lists_v2[layer]);
 
-                // #pragma omp critical
                 distances[make_pair(v1, v2)][layer] = dist;
             }
         }
@@ -319,6 +263,7 @@ void struc2vec::SimulateWalks(int num_walks, int walk_length){
 
     printf("Generating random walks....\n");
     
+    #pragma omp parallel for
     for(int i = 0 ; i < num_walks ; i++){
         for(auto& v: g){
             auto path = ExecuteRandomWalk(v.first, walk_length);
@@ -331,6 +276,8 @@ void struc2vec::SimulateWalks(int num_walks, int walk_length){
             }
 
             s += "\n";
+
+            #pragma omp critical
             f << s;
 
             printf("RW - vertex %s.\n", G.searchNode(v.first).c_str());
